@@ -60,8 +60,8 @@ let parabola (focusX: float, focusY: float) (directix: float) =
 
 let draw (ctx: CanvasRenderingContext2D) focus directix =
     clear ctx
-    point ctx focus
-    horizontalLine ctx directix
+    focus |> point ctx
+    directix |> horizontalLine ctx
     parabola focus directix |> curve ctx
 
 let focus = (200., 200.)

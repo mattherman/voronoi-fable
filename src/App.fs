@@ -6,8 +6,6 @@ open Browser.Types
 open Fable.Core
 open Voronoi
 
-type Point = float * float
-
 let rnd = Random()
 
 let height = 400.
@@ -24,7 +22,7 @@ let ctx = canvas.getContext_2d()
 let clear (ctx: CanvasRenderingContext2D) =
     ctx.clearRect (0., 0., width, height)
 
-let point (ctx: CanvasRenderingContext2D) (p: Point) =
+let point (ctx: CanvasRenderingContext2D) (p: Vector) =
     let (x, y) = p
     ctx.beginPath ()
     ctx.arc (x, y, 1., 0., 2. * Math.PI, true)
@@ -38,13 +36,13 @@ let line (ctx: CanvasRenderingContext2D) fromPoint toPoint =
 let horizontalLine (ctx: CanvasRenderingContext2D) y =
     line ctx (0., y) (width, y)
 
-let stroke (ctx: CanvasRenderingContext2D) (points: Point list) =
+let stroke (ctx: CanvasRenderingContext2D) (points: Vector list) =
     ctx.beginPath ()
     points |> List.head |> ctx.moveTo
     points |> List.tail |> List.iter ctx.lineTo
     ctx.stroke ()
 
-let fill (ctx: CanvasRenderingContext2D) (color: string) (points: Point list) =
+let fill (ctx: CanvasRenderingContext2D) (color: string) (points: Vector list) =
     ctx.fillStyle <- U3.Case1(color)
     ctx.beginPath ()
     points |> List.head |> ctx.moveTo
@@ -66,7 +64,7 @@ let draw (ctx: CanvasRenderingContext2D) points directix =
     |> List.map (fun focus -> parabola focus directix)
     |> List.iter (fun parabola -> curve ctx parabola)
 
-let getRandomPoints count: Point list =
+let getRandomPoints count: Vector list =
     List.init count (fun _ ->
         let x = (float (rnd.Next (int width)))
         let y = (float (rnd.Next (int height)))

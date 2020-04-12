@@ -4,8 +4,11 @@ open System
 open Browser.Dom
 open Browser.Types
 open Fable.Core
+open Voronoi
 
 type Point = float * float
+
+let rnd = Random()
 
 let height = 400.
 let width = 400.
@@ -54,18 +57,24 @@ let curve (ctx: CanvasRenderingContext2D) (parabola: float -> float) =
     |> List.map (fun x -> (x, (parabola x)))
     |> stroke ctx
 
-let parabola (focusX: float, focusY: float) (directix: float) =
-    fun x ->
-        (1. / (2. * (focusY - directix))) * ((x - focusX) ** 2.) + ((focusY + directix) / 2.)
-
-let draw (ctx: CanvasRenderingContext2D) focus directix =
+let draw (ctx: CanvasRenderingContext2D) points directix =
     clear ctx
-    focus |> point ctx
+    points |> List.iter (point ctx)
     directix |> horizontalLine ctx
-    parabola focus directix |> curve ctx
+    points
+    |> List.filter (fun (_, y) -> y < directix)
+    |> List.map (fun focus -> parabola focus directix)
+    |> List.iter (fun parabola -> curve ctx parabola)
+
+let getRandomPoints count: Point list =
+    List.init count (fun _ ->
+        let x = (float (rnd.Next (int width)))
+        let y = (float (rnd.Next (int height)))
+        (x, y))
 
 let focus = (200., 200.)
 let mutable directix = 180.
+let points = getRandomPoints 10
 
 body.onkeypress <- fun ev ->
     directix <-
@@ -73,6 +82,6 @@ body.onkeypress <- fun ev ->
         | "j" -> directix + 5.
         | "k" -> directix - 5.
         | _ -> directix
-    draw ctx focus directix
+    draw ctx points directix
 
-draw ctx focus directix
+draw ctx points directix
